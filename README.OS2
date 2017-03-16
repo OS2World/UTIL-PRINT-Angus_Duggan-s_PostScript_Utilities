@@ -1,0 +1,104 @@
+This is an OS/2 port of Angus Duggan's PostScript Utilities
+for manipulating PostScript documents.
+
+Page selection and rearrangement are supported, including arrangement
+into signatures for booklet printing, and page merging for n-up printing.
+
+This port is based on the original Release 1 Patchlevel 13 sources
+available from:
+        ftp.dcs.ed.ac.uk: /pub/ajcd/psutils.tar.Z
+The original sources are also included in this archive in the
+src subdir. The original author address is (angus@harlequin.co.uk).
+
+ABOUT THE UTILITIES
+-------------------
+There are three kinds of utilities in this archive: compiled exe files,
+Unix shell scripts and perl scripts. The scripts have been arranged into
+OS/2 command files (.cmd files) which run directly from an OS/2 command
+prompt. However a Unix like shell and a perl interpreter are required.
+
+Converted Unix shell scripts are configured for Ian Stewartson's
+(istewart@datlog.co.uk) Unix like shell for OS/2. It is available
+as the file ms_sh22b.zip at many popular ftp sites (e.g. oak.oakland.edu
+and ftp-os2.cdrom.com). Converted shell scripts require a Unix
+like cat program in your path. A Unix like cat may be found in the GNU file
+utilities (gnufutil.zip also available from ftp-os2).
+
+Converted perl scripts require an OS/2 perl interpreter. I used that
+available from ftp-os2.cdrom.com: /pub/os2/2_x/unix/perl4036.zip.
+
+Compiled exe files represent the main utilities in the package. Shell and
+perl scripts, in fact, are mainly filters for fixing the PostScript output
+of several Unix, DOS/Windows and Macintosh applications. These exe files
+have been ported and compiled using Eberhard Mattes' emx/gcc 0.8h for OS/2.
+They won't work under DOS since they were compiled using the -Zomf switch.
+Furthermore they need two OS/2 dll files (emx.dll and emxlibc.dll) included
+in this archive.
+
+INSTALLING THE UTILITIES
+------------------------
+Unpack this archive in any temporary directory, e.g. D:\TEMP
+For a full use of the package an HPFS partition is mandatory. Otherwise
+your resulting files would have their names truncated to 8+3 FAT limits.
+The shell scripts won't work any more in a FAT partition unless you edit
+them properly.
+
+Move all the files in the exe/ and cmd/ subdirs to the directory where
+you usually keep your Unix like stuff, e.g. D:\BIN
+
+Edit getafm.cmd and showchar.cmd. Change the first line of these files
+according to the directory where you installed these scripts.
+
+Move emx.dll and emxlibc.dll in the dll/ subdir to any subdirectory in
+your LIBPATH. Do not overwrite newer dll files with the same name.
+The included dll come from emx 0.8h fix package 2 (dated January 8, 1994).
+
+Move all the man pages in the man/ subdir to their proper place,
+e.g. d:\man\man1 if you have both a Unix like man and groff installed.
+Edit these files, if at all needed, to reflect the proper directories.
+
+REBUILDING THE UTILITIES
+------------------------
+All source code patches are in the patches.os2 file. Use Larry Wall's patch
+program to apply them. The resulting modified makefile runs under GNU make
+or dmake (I used GNU Make 3.68) directly from an OS/2 command prompt.
+
+However a number of Unix like utilities and other GNU stuff are required.
+Namely you need: sh, perl, cat, install, head, tail, chmod, man, groff
+and maybe something else.
+
+The OS/2 makefile is heavily modified with respect to the original one.
+I was unable to get all this stuff working together in a smooth way.
+The biggest problem was with the script ./maketext running under GNU Make
+running under Stewartson' shell. Therefore I arranged the makefile to call
+perl directly with ./maketext as an argument. The whole thing now runs
+under plain cmd.exe of OS/2.
+
+As to C source code patches they are quite trivial.
+A highlight of modifications:
+- Changed seekable() in psutil.c to avoid Unixism (unlink of an open file)
+- Changed seekable() in psutil.c to restore pipelining of utilities.
+  This feature was disabled for MS-DOS and required a different temporary
+  file creation method.
+- Changed almost all fopen calls from "r" to "rb"
+- Changed almost all fopen calls from "w" to "wb"
+
+Sources are compiled using the switches -Zomf -Zmtd in order to save disk
+space for compiled exe binaries. Hence they need both emx.dll and emxlibc.dll
+in your LIBPATH. Executables run under OS/2 2.x only and there is no MS-DOS
+support for the emx DOS extender.
+
+-----------------------------------------------------------------------------
+Dr. Michele Marziani                            January 14, 1994
+
+Dipartimento di Fisica
+Universita' di Ferrara
+Via Paradiso, 12
+I-44100 Ferrara FE
+I T A L Y
+
+Internet: marziani@ferrara.infn.it
+DECnet:   39967::MARZIANI
+
+Tel:  +39 (532) 781811
+Fax:  +39 (532) 781810

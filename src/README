@@ -1,0 +1,176 @@
+PostScript Utilities	        Angus Duggan		       29 November 1993
+
+This shar file contains some utilities for manipulating PostScript documents.
+Page selection and rearrangement are supported, including arrangement into
+signatures for booklet printing, and page merging for n-up printing.
+
+ENVIRONMENT
+
+These utilities have been compiled and run on Sun-3 and Sun-4 machines under
+SunOS 5.1 (Solaris 2.1), 4.1.3, 4.1.2, 4.1.1 and 4.0.1, HP9000/375 machines
+under HPUX 7.0 and HPUX 8.0, Sequent Symmetry machines under Dynix 3.1.4
+and PTX 3.2.0, IBM RS/6000, VAX/VMS and Decstation 3100 machines under Ultrix
+4.0.
+
+FILES
+
+The files contained are:
+-rw-r--r--  1 angus        1919 Nov 29 18:50 LICENSE
+-rw-r--r--  1 angus        6003 Nov 29 17:38 Makefile
+-rw-r--r--  1 angus         559 Nov 29 18:47 Manifest
+-rw-r--r--  1 angus        8354 Nov 29 20:52 README
+-rw-r--r--  1 angus        2083 Nov 29 20:44 descrip.mms
+-rw-r--r--  1 angus        5013 Nov 29 17:02 epsffit.c
+-rw-r--r--  1 angus        1210 Nov 27 14:28 epsffit.man
+-rw-r--r--  1 angus        1159 Nov 27 14:28 extractres.man
+-rw-r--r--  1 angus        2687 Nov 19 22:14 extractres.pl
+-rw-r--r--  1 angus         507 Nov 27 14:28 fixdlsrps.man
+-rw-r--r--  1 angus        1220 Nov 20 00:30 fixdlsrps.pl
+-rw-r--r--  1 angus         473 Nov 27 14:28 fixfmps.man
+-rw-r--r--  1 angus         431 Oct 27 18:07 fixfmps.pl
+-rw-r--r--  1 angus         587 Nov 27 14:28 fixmacps.man
+-rw-r--r--  1 angus        2043 Oct 27 18:07 fixmacps.pl
+-rw-r--r--  1 angus         502 Nov 27 14:28 fixpsditps.man
+-rw-r--r--  1 angus         596 Oct 27 18:07 fixpsditps.pl
+-rw-r--r--  1 angus         469 Nov 27 14:28 fixpspps.man
+-rw-r--r--  1 angus        1236 Oct 27 18:07 fixpspps.pl
+-rw-r--r--  1 angus         499 Nov 27 14:28 fixtpps.man
+-rw-r--r--  1 angus         602 Oct 27 18:07 fixtpps.pl
+-rw-r--r--  1 angus         493 Nov 27 14:28 fixwfwps.man
+-rw-r--r--  1 angus         794 Nov  9 22:57 fixwfwps.pl
+-rw-r--r--  1 angus         479 Nov 27 14:28 fixwpps.man
+-rw-r--r--  1 angus         669 Oct 27 18:07 fixwpps.pl
+-rw-r--r--  1 angus         477 Nov 27 14:29 fixwwps.man
+-rw-r--r--  1 angus         364 Oct 27 18:07 fixwwps.pl
+-rw-r--r--  1 angus        6124 Oct 27 18:08 getafm
+-rw-r--r--  1 angus         711 Nov 27 14:29 getafm.man
+-rw-r--r--  1 angus        1035 Nov 27 14:29 includeres.man
+-rw-r--r--  1 angus        1392 Nov 19 21:10 includeres.pl
+-rwxr-xr-x  1 angus         901 Nov 29 17:02 maketext
+-rw-r--r--  1 angus       30969 Oct 27 18:08 md68_0.ps
+-rw-r--r--  1 angus       35273 Oct 27 18:08 md71_0.ps
+-rw-r--r--  1 angus          40 Oct 27 18:09 patchlev.h
+-rw-r--r--  1 angus        2168 Nov 29 17:02 psbook.c
+-rw-r--r--  1 angus        1084 Nov 27 14:29 psbook.man
+-rw-r--r--  1 angus        8793 Nov 29 17:23 psnup.c
+-rw-r--r--  1 angus        3565 Nov 29 20:52 psnup.man
+-rw-r--r--  1 angus        4808 Nov 29 20:19 psresize.c
+-rw-r--r--  1 angus        1585 Nov 29 20:28 psresize.man
+-rw-r--r--  1 angus        5310 Nov 29 17:03 psselect.c
+-rw-r--r--  1 angus        1920 Nov 27 14:29 psselect.man
+-rw-r--r--  1 angus        7393 Nov 29 20:18 psspec.c
+-rw-r--r--  1 angus         602 Oct 27 18:09 psspec.h
+-rw-r--r--  1 angus        4386 Nov 29 17:03 pstops.c
+-rw-r--r--  1 angus        3895 Nov 27 14:09 pstops.man
+-rw-r--r--  1 angus        9697 Nov 29 19:39 psutil.c
+-rw-r--r--  1 angus        1071 Nov 27 13:19 psutil.h
+-rw-r--r--  1 angus        2567 Oct 27 18:09 showchar
+
+PROGRAMS
+
+psbook          rearranges pages into signatures
+psselect        selects pages and page ranges
+pstops          performs general page rearrangement and selection
+psnup           put multiple pages per physical sheet of paper
+psresize        alter document paper size
+epsffit         fits an EPSF file to a given bounding box
+
+psselect in modeled after Chris Torek's dviselect program, and pstops is
+modeled after Tom Rokicki's dvidvi program. psbook is modeled on my own
+dvibook program, which borrows heavily from Chris Torek's dviselect.
+
+SCRIPTS
+
+getafm   (sh)   outputs PostScript to retrieve AFM file from printer
+showchar (sh)   outputs PostScript to draw a character with metric info
+fixdlsrps (perl) filter to fix DviLaser/PS output so that PSUtils works
+fixfmps  (perl) filter to fix framemaker documents so that psselect etc. work
+fixmacps (perl) filter to fix Macintosh documents with saner version of md
+fixpsditps (perl) filter to fix Transcript psdit documents to work with PSUtils
+fixpspps (perl) filter to fix PSPrint PostScript so that psselect etc. work
+fixtpps  (perl) filter to fix Troff Tpscript documents
+fixwfwps (perl) filter to fix Word for Windows documents for PSUtils
+fixwpps  (perl) filter to fix WordPerfect documents for PSUtils
+fixwwps  (perl) filter to fix Windows Write documents for PSUtils
+extractres (perl) filter to extract resources from PostScript files
+includeres (perl) filter to include resources into PostScript files
+
+INSTALLATION
+
+UUdecode md71_0.uue and md68_0.uue (if supplied encoded). Edit Makefile to put
+in required paths for BINDIR, SCRIPTDIR, MANDIR, INCLUDEDIR, an PERL. Alter
+values of MANEXT to put the manual pages in a different section if desired,
+change PAPER to set the default paper size, and CFLAGS (-DSYSV for System V
+machines, -DMSDOS for Messy-DOS, -DVMS for VMS). "make", and "make install".
+
+BUGS
+
+The utilities don't check for PS-Adobe-?.? conformance; they assume documents
+conform. Utilities need an extra save/restore around whole document on a
+SPARCPrinter with NeWSPrint 1.0, because of bugs in the xnews server.
+
+Bug fixes and suggestions to angus@harlequin.co.uk
+
+NOTE
+
+This is an interim release; these utilities are currently being re-written
+from scratch, with a full DSC-3.0 parser and more extraction, merging, and
+inclusion options included.
+
+ACKNOWLEDGEMENTS
+
+Bug fixes and suggestions for improvements to PSUtils have come from many
+people, including:
+
+        Brian Colfer            brianc@labmed.ucsf.edu
+        Charles A. Finnell      finnell@org.mitre.lear
+        Conrad Kimball          cek@com.boeing.sdc
+        J.W.Hawtin              
+        Jochen Schwarze         schwarze@de.isa
+        Ken Carpenter           khc@edu.ksu.eece
+        Kristian Jorg           etxkrjg@se.ericsson.solsta
+        Larry Weissman          larryw@nsr.bioeng.washington.edu 
+        Michael L. Brown        brown%uucp.vidiot@edu.wisc.cs
+        Hunter Goatley	        goathunter@wkuvx1.bitnet
+        John Interrante         interran@uluru.Stanford.edu
+        Maurizio Cremonesi      MAUCREM@imiclvx.earn
+        Matthew Stier           Matthew.Stier@East.Sun.com
+        Gerry Pratt             cca13@seq1.kl.ac.uk
+        Robert Joop             rj@rainbow.in-berlin.de
+	Johan Vromans		jv@mh.nl
+
+(Apologies to anyone who I have left out.)
+
+NEWS
+
+Patchlevel 11 contains some significant enhancements to PSUtils, in
+preparation for the eventual release of version 2 (don't hold your breath
+waiting for it). These include:
+
+* Specify paper sizes by name for pstops and psnup.
+* Psnup re-written in C to be much more versatile (do any number n-up).
+* Epsffit can input broken %%BoundingBox comments which use real numbers.
+* Should work on MSDOS and VMS machines as well as Unix.
+* Accept more DSC compliant documents (Page labels are better supported).
+
+Patchlevel 12 was a bug-fix release.
+
+* Long standing fixmacps bug fixed.
+* fixwfwps fixes WFW EPSF files as well as DSC files.
+* md71_0.ps and md68_0.ps files were automatically uudecoded.
+
+Patchlevel 13 contained two new scripts for resource management, and fixes to
+the Makefile, page labels, and output chaining.
+
+* Epsffit can output to a file as well as standard output.
+* extractres takes resources out of PostScript files and saves them
+* includeres puts resources from a resource library into PostScript files.
+* maketext script is now used to do substitutions in Perl scripts and man pages
+* page labels in psnup and pstops are now show where pages came from.
+* page labels in psbook and psselect fixed.
+* prologues fixed to be extractable and re-usable
+* Makefile doesn't use SUFFIXES any more
+* pstops and psnup output can now be chained through each other.
+* psresize alters the paper size used by a document
+* patchlevel.h shortened to patchlev.h as a concession to MSDOS
+* psnup now has -n nup form for compatibility with other n-up programs

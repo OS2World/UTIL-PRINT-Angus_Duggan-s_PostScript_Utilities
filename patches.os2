@@ -1,0 +1,563 @@
+diff -cb -C 1 ../psutils.ori/epsffit.c ../psutils.os2/epsffit.c
+*** ../psutils.ori/epsffit.c	Mon Nov 29 09:02:04 1993
+--- ../psutils.os2/epsffit.c	Tue Jan 11 21:50:22 1994
+***************
+*** 68,70 ****
+--- 68,74 ----
+     if (argc > 4) {
++ #if defined(MSDOS) || defined(OS2)
++       if(!(input = fopen(argv[4], "rb"))) {
++ #else
+        if(!(input = fopen(argv[4], "r"))) {
++ #endif
+       fprintf(stderr, "%s: can't open input file %s\n", prog, argv[4]);
+***************
+*** 74,76 ****
+--- 78,84 ----
+     if (argc > 5) {
++ #if defined(MSDOS) || defined(OS2)
++       if(!(output = fopen(argv[5], "wb"))) {
++ #else
+        if(!(output = fopen(argv[5], "w"))) {
++ #endif
+       fprintf(stderr, "%s: can't open output file %s\n", prog, argv[5]);
+diff -cb -C 1 ../psutils.ori/Makefile ../psutils.os2/Makefile
+*** ../psutils.ori/Makefile	Mon Nov 29 09:38:32 1993
+--- ../psutils.os2/Makefile	Fri Jan 14 00:47:52 1994
+***************
+*** 10,21 ****
+  CHMOD=chmod
+! INSTALL=install -c -m $(BINMODE)
+! INSTALLMAN=install -c -m $(MANMODE)
+  
+! BINDIR=/usr/local/bin
+  SCRIPTDIR=$(BINDIR)
+! MANDIR=/usr/local/share/man/man1
+  MANEXT=1
+  PAPER=a4
+! INCLUDEDIR=/usr/local/share/psutils
+! PERL=/usr/local/bin/perl
+  
+--- 10,22 ----
+  CHMOD=chmod
+! INSTALL=d:/bin/install -c -m $(BINMODE)
+! INSTALLMAN=d:/bin/install -c -m $(MANMODE)
+  
+! BINDIR=d:/bin
+  SCRIPTDIR=$(BINDIR)
+! MANDIR=/man/man1
+  MANEXT=1
+  PAPER=a4
+! INCLUDEDIR=/lib/psutils
+! PERL=perl
+! CC=gcc
+  
+***************
+*** 24,26 ****
+  #	-DMSDOS	if compiling under MSDOS
+! CFLAGS=-DPAPER=\"$(PAPER)\"
+  
+--- 25,28 ----
+  #	-DMSDOS if compiling under MSDOS
+! #	-DOS2	if compiling under OS/2
+! CFLAGS=-DPAPER=\"$(PAPER)\" -DOS2 -Zomf -Zmtd -s -Zlinker /PM:VIO
+  
+***************
+*** 36,44 ****
+  
+! # definitions for Unix:
+! exe =
+  obj = .o
+! BIN = psbook psselect pstops epsffit psnup psresize
+! SHELLSCRIPTS = getafm
+! PERLSCRIPTS = fixfmps fixmacps fixpsditps fixpspps fixtpps fixwfwps fixwpps \
+!               fixwwps fixdlsrps extractres includeres
+  INCLUDES = md68_0.ps md71_0.ps
+--- 38,49 ----
+  
+! # definitions for OS/2
+! exe = .exe
+  obj = .o
+! cmd = .cmd
+! BIN = psbook$(exe) psselect$(exe) pstops$(exe) epsffit$(exe) psnup$(exe) \
+!       psresize$(exe)
+! SHELLSCRIPTS = getafm$(cmd) showchar$(cmd)
+! PERLSCRIPTS = fixfmps$(cmd) fixmacps$(cmd) fixpsditps$(cmd) fixpspps$(cmd) \
+! 	      fixtpps$(cmd) fixwfwps$(cmd) fixwpps$(cmd) \
+! 	      fixwwps$(cmd) fixdlsrps$(cmd) extractres$(cmd) includeres$(cmd)
+  INCLUDES = md68_0.ps md71_0.ps
+***************
+*** 52,65 ****
+  
+! # Definitions for MSDOS
+! #exe = .exe
+! #obj = .obj
+! #BIN = psbook$(exe) psselect$(exe) pstops$(exe) epsffit$(exe) psnup$(exe) \
+! #      psresize$(exe)
+! #PERLSCRIPTS =
+! #INCLUDES =
+! #MANPAGES =
+! #RM = del
+  
+- all: $(BIN) $(PERLSCRIPTS) $(MANPAGES)
+- 
+  psutil$(obj): psutil.h patchlev.h psutil.c
+--- 57,60 ----
+  
+! all: $(BIN) $(PERLSCRIPTS) $(SHELLSCRIPTS) $(MANPAGES)
+  
+  psutil$(obj): psutil.h patchlev.h psutil.c
+***************
+*** 72,74 ****
+  epsffit.$(MANEXT): epsffit.man
+! 	./maketext MAN="$(MANPAGES)" $? > $@
+  
+--- 67,69 ----
+  epsffit.$(MANEXT): epsffit.man
+! 	$(PERL) ./maketext MAN="$(MANPAGES)" $? > $@
+  
+***************
+*** 80,82 ****
+  psnup.$(MANEXT): psnup.man
+! 	./maketext MAN="$(MANPAGES)" PAPER=$(PAPER) $? > $@
+  
+--- 75,77 ----
+  psnup.$(MANEXT): psnup.man
+! 	$(PERL) ./maketext MAN="$(MANPAGES)" PAPER=$(PAPER) $? > $@
+  
+***************
+*** 88,90 ****
+  psresize.$(MANEXT): psresize.man
+! 	./maketext MAN="$(MANPAGES)" PAPER=$(PAPER) $? > $@
+  
+--- 83,85 ----
+  psresize.$(MANEXT): psresize.man
+! 	$(PERL) ./maketext MAN="$(MANPAGES)" PAPER=$(PAPER) $? > $@
+  
+***************
+*** 96,98 ****
+  psbook.$(MANEXT): psbook.man
+! 	./maketext "MAN=$(MANPAGES)" $? > $@
+  
+--- 91,93 ----
+  psbook.$(MANEXT): psbook.man
+! 	$(PERL) ./maketext "MAN=$(MANPAGES)" $? > $@
+  
+***************
+*** 104,106 ****
+  psselect.$(MANEXT): psselect.man
+! 	./maketext "MAN=$(MANPAGES)" $? > $@
+  
+--- 99,101 ----
+  psselect.$(MANEXT): psselect.man
+! 	$(PERL) ./maketext "MAN=$(MANPAGES)" $? > $@
+  
+***************
+*** 112,117 ****
+  pstops.$(MANEXT): pstops.man
+! 	./maketext "MAN=$(MANPAGES)" PAPER=$(PAPER) $? > $@
+  
+! fixfmps: fixfmps.pl
+! 	./maketext PERL=$(PERL) $? >$@;
+  	$(CHMOD) $(BINMODE) $@
+--- 107,113 ----
+  pstops.$(MANEXT): pstops.man
+! 	$(PERL) ./maketext "MAN=$(MANPAGES)" PAPER=$(PAPER) $? > $@
+  
+! fixfmps$(cmd): fixfmps.pl
+! 	echo extproc perl -Sx >$@
+! 	$(PERL) ./maketext PERL=$(PERL) $? >>$@
+  	$(CHMOD) $(BINMODE) $@
+***************
+*** 119,124 ****
+  fixfmps.$(MANEXT): fixfmps.man
+! 	./maketext "MAN=$(MANPAGES)" $? > $@
+  
+! fixmacps: fixmacps.pl
+! 	./maketext PERL=$(PERL) INCLUDE=$(INCLUDEDIR) $? >$@;
+  	$(CHMOD) $(BINMODE) $@
+--- 115,121 ----
+  fixfmps.$(MANEXT): fixfmps.man
+! 	$(PERL) ./maketext "MAN=$(MANPAGES)" $? > $@
+  
+! fixmacps$(cmd): fixmacps.pl
+! 	echo extproc perl -Sx >$@
+! 	$(PERL) ./maketext PERL=$(PERL) INCLUDE=$(INCLUDEDIR) $? >>$@
+  	$(CHMOD) $(BINMODE) $@
+***************
+*** 126,131 ****
+  fixmacps.$(MANEXT): fixmacps.man
+! 	./maketext "MAN=$(MANPAGES)" INCLUDE=$(INCLUDEDIR) $? > $@
+  
+! fixpsditps: fixpsditps.pl
+! 	./maketext PERL=$(PERL) $? >$@;
+  	$(CHMOD) $(BINMODE) $@
+--- 123,129 ----
+  fixmacps.$(MANEXT): fixmacps.man
+! 	$(PERL) ./maketext "MAN=$(MANPAGES)" INCLUDE=$(INCLUDEDIR) $? > $@
+  
+! fixpsditps$(cmd): fixpsditps.pl
+! 	echo extproc perl -Sx >$@
+! 	$(PERL) ./maketext PERL=$(PERL) $? >>$@
+  	$(CHMOD) $(BINMODE) $@
+***************
+*** 133,138 ****
+  fixpsditps.$(MANEXT): fixpsditps.man
+! 	./maketext "MAN=$(MANPAGES)" $? > $@
+  
+! fixpspps: fixpspps.pl
+! 	./maketext PERL=$(PERL) $? >$@;
+  	$(CHMOD) $(BINMODE) $@
+--- 131,137 ----
+  fixpsditps.$(MANEXT): fixpsditps.man
+! 	$(PERL) ./maketext "MAN=$(MANPAGES)" $? > $@
+  
+! fixpspps$(cmd): fixpspps.pl
+! 	echo extproc perl -Sx >$@
+! 	$(PERL) ./maketext PERL=$(PERL) $? >>$@
+  	$(CHMOD) $(BINMODE) $@
+***************
+*** 140,145 ****
+  fixpspps.$(MANEXT): fixpspps.man
+! 	./maketext "MAN=$(MANPAGES)" $? > $@
+  
+! fixtpps: fixtpps.pl
+! 	./maketext PERL=$(PERL) $? >$@;
+  	$(CHMOD) $(BINMODE) $@
+--- 139,145 ----
+  fixpspps.$(MANEXT): fixpspps.man
+! 	$(PERL) ./maketext "MAN=$(MANPAGES)" $? > $@
+  
+! fixtpps$(cmd): fixtpps.pl
+! 	echo extproc perl -Sx >$@
+! 	$(PERL) ./maketext PERL=$(PERL) $? >>$@
+  	$(CHMOD) $(BINMODE) $@
+***************
+*** 147,152 ****
+  fixtpps.$(MANEXT): fixtpps.man
+! 	./maketext "MAN=$(MANPAGES)" $? > $@
+  
+! fixwfwps: fixwfwps.pl
+! 	./maketext PERL=$(PERL) $? >$@;
+  	$(CHMOD) $(BINMODE) $@
+--- 147,153 ----
+  fixtpps.$(MANEXT): fixtpps.man
+! 	$(PERL) ./maketext "MAN=$(MANPAGES)" $? > $@
+  
+! fixwfwps$(cmd): fixwfwps.pl
+! 	echo extproc perl -Sx >$@
+! 	$(PERL) ./maketext PERL=$(PERL) $? >>$@
+  	$(CHMOD) $(BINMODE) $@
+***************
+*** 154,159 ****
+  fixwfwps.$(MANEXT): fixwfwps.man
+! 	./maketext "MAN=$(MANPAGES)" $? > $@
+  
+! fixwpps: fixwpps.pl
+! 	./maketext PERL=$(PERL) $? >$@;
+  	$(CHMOD) $(BINMODE) $@
+--- 155,161 ----
+  fixwfwps.$(MANEXT): fixwfwps.man
+! 	$(PERL) ./maketext "MAN=$(MANPAGES)" $? > $@
+  
+! fixwpps$(cmd): fixwpps.pl
+! 	echo extproc perl -Sx >$@
+! 	$(PERL) ./maketext PERL=$(PERL) $? >>$@
+  	$(CHMOD) $(BINMODE) $@
+***************
+*** 161,166 ****
+  fixwpps.$(MANEXT): fixwpps.man
+! 	./maketext "MAN=$(MANPAGES)" $? > $@
+  
+! fixwwps: fixwwps.pl
+! 	./maketext PERL=$(PERL) $? >$@;
+  	$(CHMOD) $(BINMODE) $@
+--- 163,169 ----
+  fixwpps.$(MANEXT): fixwpps.man
+! 	$(PERL) ./maketext "MAN=$(MANPAGES)" $? > $@
+  
+! fixwwps$(cmd): fixwwps.pl
+! 	echo extproc perl -Sx >$@
+! 	$(PERL) ./maketext PERL=$(PERL) $? >>$@
+  	$(CHMOD) $(BINMODE) $@
+***************
+*** 168,173 ****
+  fixwwps.$(MANEXT): fixwwps.man
+! 	./maketext "MAN=$(MANPAGES)" $? > $@
+  
+! fixdlsrps: fixdlsrps.pl
+! 	./maketext PERL=$(PERL) $? >$@;
+  	$(CHMOD) $(BINMODE) $@
+--- 171,177 ----
+  fixwwps.$(MANEXT): fixwwps.man
+! 	$(PERL) ./maketext "MAN=$(MANPAGES)" $? > $@
+  
+! fixdlsrps$(cmd): fixdlsrps.pl
+! 	echo extproc perl -Sx >$@
+! 	$(PERL) ./maketext PERL=$(PERL) $? >>$@
+  	$(CHMOD) $(BINMODE) $@
+***************
+*** 175,180 ****
+  fixdlsrps.$(MANEXT): fixdlsrps.man
+! 	./maketext "MAN=$(MANPAGES)" $? > $@
+  
+! extractres: extractres.pl
+! 	./maketext PERL=$(PERL) $? >$@;
+  	$(CHMOD) $(BINMODE) $@
+--- 179,185 ----
+  fixdlsrps.$(MANEXT): fixdlsrps.man
+! 	$(PERL) ./maketext "MAN=$(MANPAGES)" $? > $@
+  
+! extractres$(cmd): extractres.pl
+! 	echo extproc perl -Sx >$@
+! 	$(PERL) ./maketext PERL=$(PERL) $? >>$@
+  	$(CHMOD) $(BINMODE) $@
+***************
+*** 182,187 ****
+  extractres.$(MANEXT): extractres.man
+! 	./maketext "MAN=$(MANPAGES)" $? > $@
+  
+! includeres: includeres.pl
+! 	./maketext PERL=$(PERL) INCLUDE=$(INCLUDEDIR) $? >$@;
+  	$(CHMOD) $(BINMODE) $@
+--- 187,193 ----
+  extractres.$(MANEXT): extractres.man
+! 	$(PERL) ./maketext "MAN=$(MANPAGES)" $? > $@
+  
+! includeres$(cmd): includeres.pl
+! 	echo extproc perl -Sx >$@
+! 	$(PERL) ./maketext PERL=$(PERL) INCLUDE=$(INCLUDEDIR) $? >>$@
+  	$(CHMOD) $(BINMODE) $@
+***************
+*** 189,194 ****
+  includeres.$(MANEXT): includeres.man
+! 	./maketext "MAN=$(MANPAGES)" INCLUDE=$(INCLUDEDIR) $? > $@
+  
+  getafm.$(MANEXT): getafm.man
+! 	./maketext "MAN=$(MANPAGES)" $? > $@
+  
+--- 195,212 ----
+  includeres.$(MANEXT): includeres.man
+! 	$(PERL) ./maketext "MAN=$(MANPAGES)" INCLUDE=$(INCLUDEDIR) $? > $@
+! 
+! getafm$(cmd): getafm
+! 	echo extproc sh $(BINDIR)/$@ >$@
+! 	head -n 2 $? >>$@
+! 	echo shift >>$@
+! 	tail -n +2 $? >>$@
+  
+  getafm.$(MANEXT): getafm.man
+! 	$(PERL) ./maketext "MAN=$(MANPAGES)" $? > $@
+! 
+! showchar$(cmd): showchar
+! 	echo extproc sh $(BINDIR)/$@ >$@
+! 	head -n 5 $? >>$@
+! 	echo shift >>$@
+! 	tail -n +5 $? >>$@
+  
+***************
+*** 203,225 ****
+  install.bin: $(BIN)
+! 	@for i in $(BIN); do \
+! 		echo Installing $$i; \
+! 		$(INSTALL) $$i $(BINDIR); \
+! 	done
+  
+  install.script: $(PERLSCRIPTS) $(SHELLSCRIPTS)
+! 	@for i in $(PERLSCRIPTS) $(SHELLSCRIPTS); do \
+! 		echo Installing $$i; \
+! 		$(INSTALL) $$i $(SCRIPTDIR); \
+! 	done
+  
+  install.include: $(INCLUDES)
+! 	@for i in $(INCLUDES); do \
+! 		echo Installing $$i; \
+! 		$(INSTALLMAN) $$i $(INCLUDEDIR); \
+! 	done
+  
+  install.man: $(MANPAGES)
+! 	@for i in $(MANPAGES); do \
+! 		echo Installing manual page for $$i; \
+! 		$(INSTALLMAN) $$i $(MANDIR)/$$i; \
+! 	done
+--- 221,231 ----
+  install.bin: $(BIN)
+! 	@for %i in ($(BIN)) do $(INSTALL) %i $(BINDIR)
+  
+  install.script: $(PERLSCRIPTS) $(SHELLSCRIPTS)
+! 	@for %i in ($(PERLSCRIPTS) $(SHELLSCRIPTS)) do $(INSTALL) %i $(SCRIPTDIR)
+  
+  install.include: $(INCLUDES)
+! 	@for %i in ($(INCLUDES)) do $(INSTALLMAN) %i $(INCLUDEDIR)
+  
+  install.man: $(MANPAGES)
+! 	@for %i in ($(MANPAGES)) do $(INSTALLMAN) %i $(MANDIR)/%i
+Only in ../psutils.os2: patches.os2
+diff -cb -C 1 ../psutils.ori/psbook.c ../psutils.os2/psbook.c
+*** ../psutils.ori/psbook.c	Mon Nov 29 09:02:42 1993
+--- ../psutils.os2/psbook.c	Sat Jan 08 00:20:18 1994
+***************
+*** 47,49 ****
+--- 47,53 ----
+        } else if (infile == stdin) {
++ #if defined(MSDOS) || defined(OS2)
++      if ((infile = fopen(*argv, "rb")) == NULL) {
++ #else
+       if ((infile = fopen(*argv, "r")) == NULL) {
++ #endif
+          fprintf(stderr, "%s: can't open input file %s\n", prog, *argv);
+***************
+*** 53,55 ****
+--- 57,63 ----
+        } else if (outfile == stdout) {
++ #if defined(MSDOS) || defined(OS2)
++      if ((outfile = fopen(*argv, "wb")) == NULL) {
++ #else
+       if ((outfile = fopen(*argv, "w")) == NULL) {
++ #endif
+          fprintf(stderr, "%s: can't open output file %s\n", prog, *argv);
+diff -cb -C 1 ../psutils.ori/psnup.c ../psutils.os2/psnup.c
+*** ../psutils.ori/psnup.c	Mon Nov 29 09:23:20 1993
+--- ../psutils.os2/psnup.c	Mon Jan 10 01:05:18 1994
+***************
+*** 170,172 ****
+--- 170,176 ----
+        } else if (infile == stdin) {
++ #if defined(MSDOS) || defined(OS2)
++      if ((infile = fopen(*argv, "rb")) == NULL) {
++ #else
+       if ((infile = fopen(*argv, "r")) == NULL) {
++ #endif
+          fprintf(stderr, "%s: can't open input file %s\n", prog, *argv);
+***************
+*** 176,178 ****
+--- 180,186 ----
+        } else if (outfile == stdout) {
++ #if defined(MSDOS) || defined(OS2)
++      if ((outfile = fopen(*argv, "wb")) == NULL) {
++ #else
+       if ((outfile = fopen(*argv, "w")) == NULL) {
++ #endif
+          fprintf(stderr, "%s: can't open output file %s\n", prog, *argv);
+diff -cb -C 1 ../psutils.ori/psresize.c ../psutils.os2/psresize.c
+*** ../psutils.ori/psresize.c	Mon Nov 29 12:19:18 1993
+--- ../psutils.os2/psresize.c	Mon Jan 10 01:12:40 1994
+***************
+*** 109,111 ****
+--- 109,115 ----
+        } else if (infile == stdin) {
++ #if defined(MSDOS) || defined(OS2)
++      if ((infile = fopen(*argv, "rb")) == NULL) {
++ #else
+       if ((infile = fopen(*argv, "r")) == NULL) {
++ #endif
+          fprintf(stderr, "%s: can't open input file %s\n", prog, *argv);
+***************
+*** 115,117 ****
+--- 119,125 ----
+        } else if (outfile == stdout) {
++ #if defined(MSDOS) || defined(OS2)
++      if ((outfile = fopen(*argv, "wb")) == NULL) {
++ #else
+       if ((outfile = fopen(*argv, "w")) == NULL) {
++ #endif
+          fprintf(stderr, "%s: can't open output file %s\n", prog, *argv);
+diff -cb -C 1 ../psutils.ori/psselect.c ../psutils.os2/psselect.c
+*** ../psutils.ori/psselect.c	Mon Nov 29 09:03:12 1993
+--- ../psutils.os2/psselect.c	Tue Dec 28 13:06:18 1993
+***************
+*** 129,131 ****
+--- 129,135 ----
+        } else if (infile == stdin) {
++ #if defined(MSDOS) || defined(OS2)
++      if ((infile = fopen(*argv, "rb")) == NULL) {
++ #else
+       if ((infile = fopen(*argv, "r")) == NULL) {
++ #endif
+          fprintf(stderr, "%s: can't open input file %s\n", prog, *argv);
+***************
+*** 135,137 ****
+--- 139,145 ----
+        } else if (outfile == stdout) {
++ #if defined(MSDOS) || defined(OS2)
++      if ((outfile = fopen(*argv, "wb")) == NULL) {
++ #else
+       if ((outfile = fopen(*argv, "w")) == NULL) {
++ #endif
+          fprintf(stderr, "%s: can't open output file %s\n", prog, *argv);
+diff -cb -C 1 ../psutils.ori/pstops.c ../psutils.os2/pstops.c
+*** ../psutils.ori/pstops.c	Mon Nov 29 09:03:46 1993
+--- ../psutils.os2/pstops.c	Sat Jan 08 09:49:36 1994
+***************
+*** 166,168 ****
+--- 166,172 ----
+        else if (infile == stdin) {
++ #if defined(MSDOS) || defined(OS2)
++      if ((infile = fopen(*argv, "rb")) == NULL) {
++ #else
+       if ((infile = fopen(*argv, "r")) == NULL) {
++ #endif
+          fprintf(stderr, "%s: can't open input file %s\n", prog, *argv);
+***************
+*** 172,174 ****
+--- 176,182 ----
+        } else if (outfile == stdout) {
++ #if defined(MSDOS) || defined(OS2)
++      if ((outfile = fopen(*argv, "wb")) == NULL) {
++ #else
+       if ((outfile = fopen(*argv, "w")) == NULL) {
++ #endif
+          fprintf(stderr, "%s: can't open output file %s\n", prog, *argv);
+diff -cb -C 1 ../psutils.ori/psutil.c ../psutils.os2/psutil.c
+*** ../psutils.ori/psutil.c	Mon Nov 29 11:39:50 1993
+--- ../psutils.os2/psutil.c	Thu Jan 13 15:49:12 1994
+***************
+*** 80,81 ****
+--- 80,84 ----
+     char *tmpdir, *p;
++ #ifdef OS2
++    FILE *ft;
++ #endif
+  
+***************
+*** 90,91 ****
+--- 93,99 ----
+  #else
++ #ifdef OS2
++    if ((ft = tmpfile()) == NULL)        /* Avoid Unixism:               */
++       return (NULL);                    /* cannot unlink() an open file */
++    tf = fileno(ft);
++ #else
+     if ((tmpdir = getenv("TMPDIR")) == NULL)
+***************
+*** 96,97 ****
+--- 104,106 ----
+     (void) unlink(buffer);
++ #endif
+  
+***************
+*** 116,117 ****
+--- 125,127 ----
+     (void) lseek(tf, 0L, 0);
++ #ifndef OS2
+     if ((fp = fdopen(tf, "r")) == NULL) {
+***************
+*** 120,121 ****
+--- 130,134 ----
+     return (fp);
++ #else
++    return (ft);     /* temporary file is already open */
++ #endif
+  #endif
+diff -cb -C 1 ../psutils.ori/psutil.h ../psutils.os2/psutil.h
+*** ../psutils.ori/psutil.h	Sat Nov 27 05:19:14 1993
+--- ../psutils.os2/psutil.h	Tue Dec 28 13:08:16 1993
+***************
+*** 12,14 ****
+  
+! #define TMPDIR "/tmp"
+  
+--- 12,14 ----
+  
+! #define TMPDIR "."
+  
